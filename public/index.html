@@ -85,15 +85,20 @@ header a.home:hover{color:#fff}
 .drop .big{font-weight:700;font-size:15px}
 .drop .small{color:var(--muted);font-size:13px;margin-top:3px}
 
-.picked{margin-top:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
-.picked figure{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#DFEDD4}
-.picked figure.noprev::after{content:'\1F4F7';position:absolute;inset:0;display:flex;align-items:center;
-  justify-content:center;font-size:22px;background:#DFEDD4}
-.picked img{width:100%;height:100%;object-fit:cover}
-.picked button{
-  position:absolute;top:3px;right:3px;width:20px;height:20px;border:none;border-radius:50%;
-  background:rgba(0,0,0,.62);color:#fff;font-size:13px;line-height:20px;cursor:pointer;padding:0;
-}
+.picked{margin-top:12px;display:flex;flex-direction:column;gap:9px}
+.pickrow{display:flex;align-items:center;gap:10px;background:#F7FBF3;
+  border:1px solid var(--border);border-radius:10px;padding:8px}
+.pickrow .thumb{position:relative;width:54px;height:54px;flex:0 0 54px;
+  border-radius:7px;overflow:hidden;background:#DFEDD4}
+.pickrow .thumb img{width:100%;height:100%;object-fit:cover}
+.pickrow .thumb.noprev::after{content:'\1F4F7';position:absolute;inset:0;display:flex;
+  align-items:center;justify-content:center;font-size:20px}
+.pickrow input{flex:1;min-width:0;font:inherit;font-size:16px;padding:9px 11px;
+  border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--ink)}
+.pickrow input:focus{outline:2px solid var(--green);outline-offset:-1px}
+.pickrow .rm{flex:0 0 auto;width:26px;height:26px;border:none;border-radius:50%;
+  background:rgba(0,0,0,.55);color:#fff;font-size:14px;line-height:26px;cursor:pointer;padding:0}
+.hint{font-size:12.5px;color:var(--muted);margin-top:5px}
 
 .btn{
   width:100%;margin-top:16px;padding:14px;border:none;border-radius:10px;
@@ -188,8 +193,9 @@ header a.home:hover{color:#fff}
       </div>
 
       <div class="field">
-        <label for="caption">What's happening in these? <span class="req">*</span></label>
+        <label for="caption">What's happening? <span class="req">*</span></label>
         <textarea id="caption" name="caption" maxlength="300" placeholder="Who's in the photo, what you were doing…"></textarea>
+        <div class="hint">Used for any photo you don't caption individually below.</div>
       </div>
 
       <!-- Bots fill this in; people never see it. -->
@@ -261,25 +267,46 @@ header a.home:hover{color:#fff}
   function renderPicked(){
     var box = $("picked");
     box.innerHTML = "";
-    picked.forEach(function(file, i){
-      var fig = document.createElement("figure");
+
+    picked.forEach(function(item){
+      var row = document.createElement("div");
+      row.className = "pickrow";
+
+      var thumb = document.createElement("div");
+      thumb.className = "thumb";
       var img = document.createElement("img");
-      img.src = URL.createObjectURL(file);
+      img.src = URL.createObjectURL(item.file);
       img.onload = function(){ URL.revokeObjectURL(img.src); };
       // Chrome can't render a HEIC thumbnail even though it uploads fine, so
       // show a placeholder rather than a broken-image icon.
       img.onerror = function(){
         URL.revokeObjectURL(img.src);
-        fig.classList.add("noprev");
+        thumb.classList.add("noprev");
         img.remove();
       };
+      thumb.appendChild(img);
+
+      var cap = document.createElement("input");
+      cap.type = "text";
+      cap.maxLength = 300;
+      cap.placeholder = "Who's in this one?";
+      cap.value = item.caption;
+      // Held on the item, so a typed caption survives removing another row.
+      cap.oninput = function(){ item.caption = cap.value; };
+
       var rm = document.createElement("button");
       rm.type = "button";
+      rm.className = "rm";
       rm.innerHTML = "&times;";
       rm.setAttribute("aria-label", "Remove this photo");
-      rm.onclick = function(){ picked.splice(i,1); renderPicked(); };
-      fig.appendChild(img); fig.appendChild(rm);
-      box.appendChild(fig);
+      rm.onclick = function(){
+        var at = picked.indexOf(item);
+        if (at > -1) picked.splice(at, 1);
+        renderPicked();
+      };
+
+      row.appendChild(thumb); row.appendChild(cap); row.appendChild(rm);
+      box.appendChild(row);
     });
 
     var btn = $("submit");
@@ -311,7 +338,7 @@ header a.home:hover{color:#fff}
       var f = list[i];
       if (!f) continue;
       if (!looksLikeImage(f)) { skipped++; continue; }
-      if (picked.length < 20) picked.push(f);
+      if (picked.length < 20) picked.push({ file: f, caption: "" });
     }
     renderPicked();
     if (skipped) say(skipped + " file" + (skipped === 1 ? " wasn't a photo and was" : "s weren't photos and were") + " skipped.", "err");
@@ -430,12 +457,20 @@ header a.home:hover{color:#fff}
     $("bar").className = "bar on";
     $("bar").firstChild.style.width = "8%";
 
-    Promise.all(picked.map(prepare)).then(function(files){
+    // Snapshot the captions now — `picked` is cleared once the post lands.
+    var captions = picked.map(function(item){ return item.caption; });
+
+    Promise.all(picked.map(function(item){ return prepare(item.file); })).then(function(files){
       var fd = new FormData();
       fd.append("name", name);
       fd.append("caption", caption);
       fd.append("website", $("website").value);
-      files.forEach(function(f){ fd.append("photos", f, f.name); });
+      // Appended in matched pairs: FormData preserves insertion order per
+      // name, so photos[i] and captions[i] line up on the server.
+      files.forEach(function(f, i){
+        fd.append("photos", f, f.name);
+        fd.append("captions", captions[i] || "");
+      });
 
       var xhr = new XMLHttpRequest();
       xhr.open("POST", "/api/upload");

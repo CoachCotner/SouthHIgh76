@@ -27,9 +27,23 @@ export default async (req) => {
   if (!name) return json({ error: "Please add your name." }, 400);
   if (!caption) return json({ error: "Please add a caption." }, 400);
 
+  // Photos and their captions arrive as matched pairs in insertion order, so
+  // they're zipped together BEFORE anything is filtered out — filtering first
+  // would shift the captions onto the wrong photos.
+  const rawCaptions = form.getAll("captions");
   const files = form
     .getAll("photos")
-    .filter((f) => typeof f === "object" && f !== null && typeof f.arrayBuffer === "function" && f.size > 0);
+    .map((file, i) => ({
+      file,
+      own: String(rawCaptions[i] ?? "").trim().slice(0, MAX_CAPTION),
+    }))
+    .filter(
+      ({ file }) =>
+        typeof file === "object" &&
+        file !== null &&
+        typeof file.arrayBuffer === "function" &&
+        file.size > 0
+    );
 
   if (files.length === 0) return json({ error: "Please choose at least one photo." }, 400);
   if (files.length > MAX_FILES) {
@@ -41,7 +55,7 @@ export default async (req) => {
   const saved = [];
   const rejected = [];
 
-  for (const file of files) {
+  for (const { file, own } of files) {
     const label = file.name || "photo";
 
     if (file.size > MAX_BYTES) {
@@ -69,7 +83,9 @@ export default async (req) => {
     await store.set(key, buffer, {
       metadata: {
         name,
-        caption,
+        // A photo's own caption wins; the shared one is the fallback for
+        // anything the uploader didn't caption individually.
+        caption: own || caption,
         uploadedAt,
         contentType: format.mime,
         displayable: format.displayable,

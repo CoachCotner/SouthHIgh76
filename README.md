@@ -121,7 +121,9 @@ reunion-hall wifi is slow and a 10MB phone photo becomes about 1.5MB.
 ### Limits
 
 - 20 photos per upload, 12MB per photo (before the browser shrinks it)
-- Name and caption are both required
+- Name applies to the whole batch; each photo gets its own caption box, and
+  the shared caption is the fallback for any left blank
+- Name and a shared caption are both required
 - A honeypot field catches spam bots, same as the existing RSVP form
 
 ---
