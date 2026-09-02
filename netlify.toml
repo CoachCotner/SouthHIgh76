@@ -1,0 +1,19 @@
+# The site is plain HTML, so there is no build step — Netlify publishes the
+# repo root as-is and picks up the functions in netlify/functions.
+[build]
+  publish = "."
+  command = ""
+
+[functions]
+  node_bundler = "esbuild"
+
+# Pretty URL for the QR code: southhigh76.com/photos
+[[redirects]]
+  from = "/photos"
+  to = "/photos/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/upload"
+  to = "/photos/index.html"
+  status = 301

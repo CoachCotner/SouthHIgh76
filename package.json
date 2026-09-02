@@ -1,0 +1,16 @@
+{
+  "name": "southhigh76",
+  "private": true,
+  "type": "module",
+  "description": "South High Class of 1976 reunion site",
+  "dependencies": {
+    "@netlify/blobs": "^11.0.2"
+  },
+  "devDependencies": {
+    "qrcode": "^1.5.4"
+  },
+  "scripts": {
+    "qr": "node qr/generate.mjs",
+    "test": "node test/run.mjs"
+  }
+}

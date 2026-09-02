@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reunion Photos — South High Class of '76</title>
+<meta name="description" content="Share your photos from the South High Class of 1976 reunion.">
+<meta name="theme-color" content="#12305c">
+<style>
+/* ---------------------------------------------------------------
+   Palette. These are placeholders until the main site's stylesheet
+   lands — swap these six values to match southhigh76.com and the
+   whole page follows.
+   --------------------------------------------------------------- */
+:root{
+  --navy:#12305c;
+  --navy-dark:#0b1f3d;
+  --gold:#c8952b;
+  --cream:#f7f4ed;
+  --ink:#1a1a1a;
+  --muted:#6b7280;
+
+  --card:#ffffff;
+  --border:#e3e0d8;
+  --radius:14px;
+  --shadow:0 2px 14px rgba(11,31,61,.09);
+  --shadow-lg:0 10px 40px rgba(11,31,61,.18);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--cream);color:var(--ink);line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+
+/* ---------- header ---------- */
+header{background:var(--navy);color:#fff;padding:28px 0 24px;text-align:center}
+header .kicker{
+  font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:6px;
+}
+header h1{font-size:clamp(24px,5vw,34px);font-weight:800;letter-spacing:-.5px}
+header p{color:rgba(255,255,255,.72);font-size:15px;margin-top:6px}
+header a.home{
+  display:inline-block;margin-top:14px;color:rgba(255,255,255,.8);
+  font-size:13px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.3);
+}
+header a.home:hover{color:#fff}
+
+/* ---------- upload card ---------- */
+.uploader{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:22px;margin:-18px auto 28px;max-width:640px;position:relative;
+}
+.uploader h2{font-size:19px;font-weight:800;margin-bottom:4px}
+.uploader .sub{color:var(--muted);font-size:14px;margin-bottom:18px}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
+.field .req{color:var(--gold)}
+.field input[type=text],.field textarea{
+  width:100%;font:inherit;font-size:16px; /* 16px stops iOS zooming on focus */
+  padding:11px 13px;border:1px solid var(--border);border-radius:9px;
+  background:#fff;color:var(--ink);
+}
+.field textarea{resize:vertical;min-height:66px}
+.field input:focus,.field textarea:focus{outline:2px solid var(--navy);outline-offset:-1px;border-color:var(--navy)}
+
+/* the honeypot — hidden from people, catnip for bots */
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+.drop{
+  border:2px dashed var(--border);border-radius:12px;padding:26px 16px;text-align:center;
+  background:#fcfbf8;cursor:pointer;transition:border-color .15s,background .15s;
+}
+.drop:hover,.drop.over{border-color:var(--navy);background:#f4f7fc}
+.drop .icon{font-size:30px;line-height:1;margin-bottom:8px}
+.drop .big{font-weight:700;font-size:15px}
+.drop .small{color:var(--muted);font-size:13px;margin-top:3px}
+
+.picked{margin-top:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+.picked figure{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#eee}
+.picked figure.noprev::after{content:'\1F4F7';position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;font-size:22px;background:#e6e2d9}
+.picked img{width:100%;height:100%;object-fit:cover}
+.picked button{
+  position:absolute;top:3px;right:3px;width:20px;height:20px;border:none;border-radius:50%;
+  background:rgba(0,0,0,.62);color:#fff;font-size:13px;line-height:20px;cursor:pointer;padding:0;
+}
+
+.btn{
+  width:100%;margin-top:16px;padding:14px;border:none;border-radius:10px;
+  background:var(--navy);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer;
+  transition:background .15s;
+}
+.btn:hover:not(:disabled){background:var(--navy-dark)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+
+.bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:12px;display:none}
+.bar.on{display:block}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .25s}
+
+.msg{margin-top:12px;padding:11px 13px;border-radius:9px;font-size:14px;display:none}
+.msg.on{display:block}
+.msg.ok{background:#eaf6ee;color:#1a6b35;border:1px solid #bfe3cb}
+.msg.err{background:#fdeeee;color:#a12a2a;border:1px solid #f2c6c6}
+
+/* ---------- gallery ---------- */
+.gallery-head{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 14px;gap:12px}
+.gallery-head h2{font-size:20px;font-weight:800}
+.gallery-head .count{color:var(--muted);font-size:14px}
+
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:12px;padding-bottom:40px;
+}
+@media(min-width:700px){.grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}}
+
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;
+  box-shadow:var(--shadow);position:relative;
+}
+.card .ph{aspect-ratio:4/3;background:#e9e6df;cursor:zoom-in}
+.card .ph.unshowable{display:flex;align-items:center;justify-content:center;cursor:default}
+.card .ph.unshowable a{display:flex;flex-direction:column;align-items:center;gap:6px;
+  color:var(--navy);text-decoration:none;font-size:12.5px;font-weight:700}
+.card .ph.unshowable span:first-child{font-size:26px}
+.card .ph img{width:100%;height:100%;object-fit:cover}
+.card .meta{padding:9px 11px 11px}
+.card .cap{font-size:13px;line-height:1.4}
+.card .by{font-size:11.5px;color:var(--muted);margin-top:4px;font-weight:600}
+.card .mine{
+  position:absolute;top:7px;right:7px;background:rgba(0,0,0,.62);color:#fff;border:none;
+  border-radius:7px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;
+}
+
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty .icon{font-size:38px;margin-bottom:10px}
+.more{display:block;margin:0 auto 44px;padding:11px 22px;border:1px solid var(--border);
+  background:#fff;border-radius:9px;font:inherit;font-weight:700;cursor:pointer}
+
+/* ---------- lightbox ---------- */
+.lb{position:fixed;inset:0;background:rgba(6,14,28,.94);z-index:60;display:none;
+  align-items:center;justify-content:center;padding:20px}
+.lb.on{display:flex}
+.lb img{max-width:100%;max-height:78vh;object-fit:contain;border-radius:6px}
+.lb .info{position:absolute;left:0;right:0;bottom:0;padding:18px 20px 26px;color:#fff;
+  background:linear-gradient(transparent,rgba(0,0,0,.78));text-align:center}
+.lb .info .cap{font-size:15px}
+.lb .info .by{font-size:12.5px;opacity:.72;margin-top:4px}
+.lb .x{position:absolute;top:14px;right:16px;width:40px;height:40px;border:none;border-radius:50%;
+  background:rgba(255,255,255,.16);color:#fff;font-size:22px;cursor:pointer}
+.lb .nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border:none;
+  border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:22px;cursor:pointer}
+.lb .prev{left:12px}.lb .next{right:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">South High &middot; Class of 1976</div>
+    <h1>Reunion Photo Wall</h1>
+    <p>Snap it, share it — it shows up here right away.</p>
+    <a class="home" href="/">&larr; Back to the reunion site</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="uploader">
+    <h2>Add your photos</h2>
+    <div class="sub">Pick as many as you like — up to 20 at a time.</div>
+
+    <form id="form" novalidate>
+      <div class="field">
+        <label for="name">Your name <span class="req">*</span></label>
+        <input type="text" id="name" name="name" maxlength="80" autocomplete="name" placeholder="First and last (or maiden) name">
+      </div>
+
+      <div class="field">
+        <label for="caption">What's happening in these? <span class="req">*</span></label>
+        <textarea id="caption" name="caption" maxlength="300" placeholder="Who's in the photo, what you were doing…"></textarea>
+      </div>
+
+      <!-- Bots fill this in; people never see it. -->
+      <div class="hp" aria-hidden="true">
+        <label for="website">Leave this blank</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="drop" id="drop">
+        <div class="icon">&#128248;</div>
+        <div class="big">Tap to take a photo or choose from your library</div>
+        <div class="small">Straight from an iPhone or Android &middot; up to 12MB each</div>
+      </div>
+      <input type="file" id="files" accept="image/*,.heic,.heif,.avif,.jpg,.jpeg,.png,.webp,.gif" multiple hidden>
+
+      <div class="picked" id="picked"></div>
+
+      <button type="submit" class="btn" id="submit" disabled>Choose photos first</button>
+      <div class="bar" id="bar"><i></i></div>
+      <div class="msg" id="msg"></div>
+    </form>
+  </section>
+
+  <div class="gallery-head">
+    <h2>The wall</h2>
+    <div class="count" id="count"></div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <button class="more" id="more" hidden>Load more photos</button>
+
+</div>
+
+<div class="lb" id="lb">
+  <button class="x" id="lbx" aria-label="Close">&times;</button>
+  <button class="nav prev" id="lbprev" aria-label="Previous">&#8249;</button>
+  <button class="nav next" id="lbnext" aria-label="Next">&#8250;</button>
+  <img id="lbimg" alt="">
+  <div class="info"><div class="cap" id="lbcap"></div><div class="by" id="lbby"></div></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var $ = function(id){ return document.getElementById(id); };
+  var picked = [];          // File objects staged for upload
+  var photos = [];          // what's currently rendered on the wall
+  var cursor = null;
+  var MINE_KEY = "sh76-my-photos";   // { id: token } for photos from this device
+
+  /* ---------- staged files ---------- */
+
+  function mine(){
+    try { return JSON.parse(localStorage.getItem(MINE_KEY) || "{}"); }
+    catch(e){ return {}; }
+  }
+  function remember(list){
+    try {
+      var m = mine();
+      list.forEach(function(p){ m[p.id] = p.token; });
+      localStorage.setItem(MINE_KEY, JSON.stringify(m));
+    } catch(e){ /* private browsing — the wall still works, just no undo */ }
+  }
+  function forget(id){
+    try { var m = mine(); delete m[id]; localStorage.setItem(MINE_KEY, JSON.stringify(m)); }
+    catch(e){}
+  }
+
+  function renderPicked(){
+    var box = $("picked");
+    box.innerHTML = "";
+    picked.forEach(function(file, i){
+      var fig = document.createElement("figure");
+      var img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
+      img.onload = function(){ URL.revokeObjectURL(img.src); };
+      // Chrome can't render a HEIC thumbnail even though it uploads fine, so
+      // show a placeholder rather than a broken-image icon.
+      img.onerror = function(){
+        URL.revokeObjectURL(img.src);
+        fig.classList.add("noprev");
+        img.remove();
+      };
+      var rm = document.createElement("button");
+      rm.type = "button";
+      rm.innerHTML = "&times;";
+      rm.setAttribute("aria-label", "Remove this photo");
+      rm.onclick = function(){ picked.splice(i,1); renderPicked(); };
+      fig.appendChild(img); fig.appendChild(rm);
+      box.appendChild(fig);
+    });
+
+    var btn = $("submit");
+    btn.disabled = picked.length === 0;
+    btn.textContent = picked.length === 0
+      ? "Choose photos first"
+      : "Post " + picked.length + " photo" + (picked.length === 1 ? "" : "s") + " to the wall";
+  }
+
+  var IMAGE_NAME = /\.(jpe?g|png|gif|webp|avif|heic|heif)$/i;
+
+  // iPhones routinely hand over HEIC with an empty or generic MIME type, so a
+  // strict `type.startsWith("image/")` check silently drops real photos. Trust
+  // the filename too, and let the server settle it by reading the bytes.
+  function looksLikeImage(file){
+    if (file.type && file.type.indexOf("image/") === 0) return true;
+    if (file.type && file.type !== "application/octet-stream") return false;
+    return IMAGE_NAME.test(file.name || "");
+  }
+
+  function isHeic(file){
+    if (/^image\/hei[cf]$/i.test(file.type || "")) return true;
+    return !file.type && /\.(heic|heif)$/i.test(file.name || "");
+  }
+
+  function addFiles(list){
+    var skipped = 0;
+    for (var i = 0; i < list.length; i++){
+      var f = list[i];
+      if (!f) continue;
+      if (!looksLikeImage(f)) { skipped++; continue; }
+      if (picked.length < 20) picked.push(f);
+    }
+    renderPicked();
+    if (skipped) say(skipped + " file" + (skipped === 1 ? " wasn't a photo and was" : "s weren't photos and were") + " skipped.", "err");
+  }
+
+  $("drop").onclick = function(){ $("files").click(); };
+  $("files").onchange = function(e){ addFiles(e.target.files); e.target.value = ""; };
+
+  ["dragenter","dragover"].forEach(function(ev){
+    $("drop").addEventListener(ev, function(e){ e.preventDefault(); this.classList.add("over"); });
+  });
+  ["dragleave","drop"].forEach(function(ev){
+    $("drop").addEventListener(ev, function(e){ e.preventDefault(); this.classList.remove("over"); });
+  });
+  $("drop").addEventListener("drop", function(e){
+    if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
+  });
+
+  /* ---------- get every photo into something the wall can show ----------
+     Two jobs. First, HEIC: iPhones (and Androids set to "high efficiency")
+     shoot it, Safari can display it, and Chrome/Firefox cannot — so it has to
+     become a JPEG before it goes up, or half the class sees a broken tile.
+     iOS usually converts on its way out of the picker, Safari's decoder
+     catches most of the rest, and the vendored decoder handles the stragglers.
+     Second, size: phone photos are 3-5MB and reunion-hall wifi is terrible,
+     so anything oversized gets scaled down on the way out.              */
+
+  var heicDecoder = null;
+  function loadHeicDecoder(){
+    if (heicDecoder) return heicDecoder;
+    heicDecoder = new Promise(function(resolve, reject){
+      var s = document.createElement("script");
+      s.src = "/photos/vendor/heic2any.min.js";
+      s.onload = function(){ window.heic2any ? resolve(window.heic2any) : reject(); };
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+    return heicDecoder;
+  }
+
+  function decode(file){
+    return createImageBitmap(file).catch(function(err){
+      if (!isHeic(file)) throw err;
+      // The browser can't read HEIC natively — bring in the decoder.
+      return loadHeicDecoder()
+        .then(function(heic2any){ return heic2any({ blob: file, toType: "image/jpeg", quality: 0.92 }); })
+        .then(function(out){ return createImageBitmap(Array.isArray(out) ? out[0] : out); });
+    });
+  }
+
+  function asJpeg(bitmap, name){
+    var MAX = 2000;
+    var scale = Math.min(1, MAX / Math.max(bitmap.width, bitmap.height));
+    var w = Math.round(bitmap.width * scale), h = Math.round(bitmap.height * scale);
+
+    var canvas = document.createElement("canvas");
+    canvas.width = w; canvas.height = h;
+    canvas.getContext("2d").drawImage(bitmap, 0, 0, w, h);
+    bitmap.close && bitmap.close();
+
+    return new Promise(function(resolve, reject){
+      canvas.toBlob(function(blob){
+        if (!blob) return reject(new Error("encode failed"));
+        resolve(new File([blob], name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" }));
+      }, "image/jpeg", 0.85);
+    });
+  }
+
+  function prepare(file){
+    var mustConvert = isHeic(file);
+
+    // Small, already-displayable photos go up untouched.
+    if (!mustConvert){
+      if (!window.createImageBitmap || !window.HTMLCanvasElement) return Promise.resolve(file);
+      if (file.size < 600 * 1024) return Promise.resolve(file);
+    }
+
+    return decode(file).then(function(bmp){
+      if (!mustConvert && Math.max(bmp.width, bmp.height) <= 2000 && file.size < 3 * 1024 * 1024){
+        bmp.close && bmp.close();
+        return file;
+      }
+      return asJpeg(bmp, file.name || "photo");
+    }).then(function(out){
+      // Never let "shrinking" make a file bigger.
+      return (!mustConvert && out.size >= file.size) ? file : out;
+    }).catch(function(){
+      // Conversion failed. Send the original rather than lose the photo —
+      // the server keeps it and the wall degrades to a download link.
+      return file;
+    });
+  }
+
+  /* ---------- submit ---------- */
+
+  function say(text, kind){
+    var el = $("msg");
+    el.textContent = text;
+    el.className = "msg on " + kind;
+  }
+  function clearSay(){ $("msg").className = "msg"; }
+
+  $("form").onsubmit = function(e){
+    e.preventDefault();
+    clearSay();
+
+    var name = $("name").value.trim();
+    var caption = $("caption").value.trim();
+    if (!name){ say("Please add your name so we know who to credit.", "err"); $("name").focus(); return; }
+    if (!caption){ say("Please add a quick caption.", "err"); $("caption").focus(); return; }
+    if (!picked.length){ say("Choose at least one photo.", "err"); return; }
+
+    var btn = $("submit");
+    btn.disabled = true;
+    btn.textContent = "Getting your photos ready…";
+    $("bar").className = "bar on";
+    $("bar").firstChild.style.width = "8%";
+
+    Promise.all(picked.map(prepare)).then(function(files){
+      var fd = new FormData();
+      fd.append("name", name);
+      fd.append("caption", caption);
+      fd.append("website", $("website").value);
+      files.forEach(function(f){ fd.append("photos", f, f.name); });
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/upload");
+
+      xhr.upload.onprogress = function(ev){
+        if (!ev.lengthComputable) return;
+        var pct = 8 + Math.round((ev.loaded / ev.total) * 88);
+        $("bar").firstChild.style.width = pct + "%";
+        btn.textContent = "Uploading… " + pct + "%";
+      };
+
+      xhr.onload = function(){
+        $("bar").firstChild.style.width = "100%";
+        var res = {};
+        try { res = JSON.parse(xhr.responseText); } catch(err){}
+
+        if (xhr.status >= 200 && xhr.status < 300 && res.ok){
+          remember(res.photos || []);
+          picked = [];
+          $("caption").value = "";
+          renderPicked();
+          var n = res.saved;
+          var note = (res.rejected && res.rejected.length)
+            ? " (" + res.rejected.length + " couldn't be added)" : "";
+          say("Posted " + n + " photo" + (n === 1 ? "" : "s") + " to the wall." + note + " Thank you!", "ok");
+          cursor = null;
+          load(true);
+        } else {
+          say(res.error || "Something went wrong on our end. Give it another try?", "err");
+        }
+
+        setTimeout(function(){ $("bar").className = "bar"; $("bar").firstChild.style.width = "0"; }, 900);
+        renderPicked();
+      };
+
+      xhr.onerror = function(){
+        say("Couldn't reach the site — check your signal and try again.", "err");
+        $("bar").className = "bar";
+        renderPicked();
+      };
+
+      xhr.send(fd);
+    });
+  };
+
+  /* ---------- the wall ---------- */
+
+  function esc(s){
+    return String(s || "").replace(/[&<>"']/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+    });
+  }
+
+  function render(){
+    var grid = $("grid");
+
+    if (!photos.length){
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1">' +
+        '<div class="icon">&#128247;</div><div><strong>No photos yet.</strong></div>' +
+        '<div>Be the first — add one above.</div></div>';
+      $("count").textContent = "";
+      return;
+    }
+
+    var m = mine();
+    grid.innerHTML = photos.map(function(p, i){
+      var owned = Object.prototype.hasOwnProperty.call(m, p.id);
+      return '<div class="card">' +
+        '<div class="ph" data-i="' + i + '"><img loading="lazy" src="' + esc(p.url) +
+          '" alt="' + esc(p.caption) + '" data-fallback="' + esc(p.url) + '"></div>' +
+        (owned ? '<button class="mine" data-del="' + esc(p.id) + '">Remove</button>' : '') +
+        '<div class="meta"><div class="cap">' + esc(p.caption) + '</div>' +
+        '<div class="by">' + esc(p.name) + '</div></div>' +
+      '</div>';
+    }).join("");
+
+    $("count").textContent = photos.length + (cursor ? "+" : "") +
+      " photo" + (photos.length === 1 ? "" : "s") + " so far";
+
+    Array.prototype.forEach.call(grid.querySelectorAll(".ph"), function(el){
+      el.onclick = function(){ openLb(+el.dataset.i); };
+    });
+
+    // A photo that reached the wall without being converted (a HEIC the
+    // uploader's browser couldn't decode) won't render outside Safari. Offer
+    // it as a download instead of leaving a broken tile on the wall.
+    Array.prototype.forEach.call(grid.querySelectorAll("img[data-fallback]"), function(img){
+      img.onerror = function(){
+        var box = img.parentNode;
+        box.className = "ph unshowable";
+        box.innerHTML = '<a href="' + img.dataset.fallback + '" download>' +
+          '<span>&#128247;</span><span>Tap to download</span></a>';
+      };
+    });
+    Array.prototype.forEach.call(grid.querySelectorAll("[data-del]"), function(el){
+      el.onclick = function(){ removeMine(el.dataset.del); };
+    });
+  }
+
+  function load(reset){
+    var url = "/api/photos" + (!reset && cursor ? "?before=" + encodeURIComponent(cursor) : "");
+    return fetch(url).then(function(r){ return r.json(); }).then(function(data){
+      photos = reset ? data.photos : photos.concat(data.photos);
+      cursor = data.nextCursor;
+      $("more").hidden = !cursor;
+      render();
+    }).catch(function(){ /* offline for a moment — the next poll picks it up */ });
+  }
+
+  $("more").onclick = function(){ load(false); };
+
+  function removeMine(id){
+    if (!confirm("Take this photo off the wall?")) return;
+    var token = mine()[id];
+    fetch("/api/delete-photo", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id: id, token: token })
+    }).then(function(r){ return r.json(); }).then(function(res){
+      if (res.ok){
+        forget(id);
+        photos = photos.filter(function(p){ return p.id !== id; });
+        render();
+      } else {
+        alert(res.error || "Couldn't remove that one.");
+      }
+    });
+  }
+
+  /* ---------- lightbox ---------- */
+
+  var lbIndex = 0;
+  function openLb(i){
+    lbIndex = i;
+    var p = photos[i];
+    if (!p) return;
+    $("lbimg").src = p.url;
+    $("lbcap").textContent = p.caption;
+    $("lbby").textContent = p.name ? "Shared by " + p.name : "";
+    $("lb").className = "lb on";
+  }
+  function closeLb(){ $("lb").className = "lb"; $("lbimg").src = ""; }
+  function step(d){
+    var next = lbIndex + d;
+    if (next >= 0 && next < photos.length) openLb(next);
+  }
+
+  $("lbx").onclick = closeLb;
+  $("lbprev").onclick = function(e){ e.stopPropagation(); step(-1); };
+  $("lbnext").onclick = function(e){ e.stopPropagation(); step(1); };
+  $("lb").onclick = function(e){ if (e.target === $("lb")) closeLb(); };
+  document.addEventListener("keydown", function(e){
+    if ($("lb").className.indexOf("on") === -1) return;
+    if (e.key === "Escape") closeLb();
+    if (e.key === "ArrowLeft") step(-1);
+    if (e.key === "ArrowRight") step(1);
+  });
+
+  /* ---------- go ---------- */
+
+  load(true);
+  // Keep the wall alive during the party, but only while the tab is visible.
+  setInterval(function(){
+    if (!document.hidden && !cursor) load(true);
+  }, 20000);
+})();
+</script>
+</body>
+</html>

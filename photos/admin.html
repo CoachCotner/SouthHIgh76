@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photo Wall — Moderation</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{--navy:#12305c;--cream:#f7f4ed;--border:#e3e0d8;--muted:#6b7280;--red:#b3261e}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--cream);color:#1a1a1a;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+header{background:var(--navy);color:#fff;padding:20px 0}
+header h1{font-size:20px;font-weight:800}
+header p{font-size:13px;color:rgba(255,255,255,.7);margin-top:2px}
+.gate{max-width:380px;margin:60px auto;background:#fff;border:1px solid var(--border);
+  border-radius:14px;padding:24px;box-shadow:0 2px 14px rgba(11,31,61,.09)}
+.gate h2{font-size:17px;margin-bottom:4px}
+.gate p{color:var(--muted);font-size:13.5px;margin-bottom:16px}
+input[type=password]{width:100%;font:inherit;font-size:16px;padding:11px 13px;
+  border:1px solid var(--border);border-radius:9px}
+button{font:inherit;cursor:pointer}
+.go{width:100%;margin-top:12px;padding:12px;border:none;border-radius:9px;
+  background:var(--navy);color:#fff;font-weight:700;font-size:15px}
+.err{color:var(--red);font-size:13.5px;margin-top:10px;display:none}
+.err.on{display:block}
+.bar{display:flex;align-items:center;justify-content:space-between;margin:20px 0 14px;gap:12px}
+.bar h2{font-size:18px}
+.bar .n{color:var(--muted);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;padding-bottom:40px}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative}
+.card .ph{aspect-ratio:4/3;background:#e9e6df}
+.card .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.card .meta{padding:9px 11px}
+.card .cap{font-size:13px}
+.card .by{font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:600}
+.card .when{font-size:11px;color:var(--muted);margin-top:2px}
+.card .del{width:100%;border:none;border-top:1px solid var(--border);background:#fff;
+  color:var(--red);font-weight:700;font-size:13px;padding:9px}
+.card .del:hover{background:#fdeeee}
+.more{display:block;margin:0 auto 44px;padding:11px 22px;border:1px solid var(--border);
+  background:#fff;border-radius:9px;font-weight:700}
+.empty{text-align:center;padding:48px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <h1>Photo Wall — Moderation</h1>
+  <p>Remove anything that shouldn't be up. Deletions are immediate and permanent.</p>
+</div></header>
+
+<div class="wrap">
+  <div class="gate" id="gate">
+    <h2>Password</h2>
+    <p>Set on Netlify as <code>REUNION_ADMIN_PASSWORD</code>.</p>
+    <input type="password" id="pw" autocomplete="current-password" placeholder="Admin password">
+    <button class="go" id="go">Unlock</button>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div id="panel" hidden>
+    <div class="bar"><h2>All photos</h2><div class="n" id="n"></div></div>
+    <div class="grid" id="grid"></div>
+    <button class="more" id="more" hidden>Load more</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var pw = "", photos = [], cursor = null;
+
+  function fail(text){ $("err").textContent = text; $("err").className = "err on"; }
+
+  function unlock(){
+    var value = $("pw").value;
+    if (!value) return;
+    fetch("/api/admin-check", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ password: value })
+    }).then(function(r){ return r.json().then(function(b){ return { status: r.status, body: b }; }); })
+      .then(function(res){
+        if (res.status === 200 && res.body.ok){
+          pw = value;
+          // Kept in memory only — closing the tab locks it again.
+          $("gate").hidden = true;
+          $("panel").hidden = false;
+          load(true);
+        } else {
+          fail(res.body.error || "That password didn't work.");
+        }
+      }).catch(function(){ fail("Couldn't reach the server."); });
+  }
+
+  $("go").onclick = unlock;
+  $("pw").addEventListener("keydown", function(e){ if (e.key === "Enter") unlock(); });
+
+  function esc(s){
+    return String(s || "").replace(/[&<>"']/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+    });
+  }
+
+  function when(iso){
+    if (!iso) return "";
+    var d = new Date(iso);
+    return isNaN(d) ? "" : d.toLocaleString();
+  }
+
+  function render(){
+    if (!photos.length){
+      $("grid").innerHTML = '<div class="empty" style="grid-column:1/-1">Nothing on the wall yet.</div>';
+      $("n").textContent = "";
+      return;
+    }
+    $("grid").innerHTML = photos.map(function(p){
+      return '<div class="card">' +
+        '<div class="ph"><img loading="lazy" src="' + esc(p.url) + '" alt=""></div>' +
+        '<div class="meta"><div class="cap">' + esc(p.caption) + '</div>' +
+        '<div class="by">' + esc(p.name) + '</div>' +
+        '<div class="when">' + esc(when(p.uploadedAt)) + '</div></div>' +
+        '<button class="del" data-id="' + esc(p.id) + '">Delete</button>' +
+      '</div>';
+    }).join("");
+    $("n").textContent = photos.length + (cursor ? "+" : "") + " shown";
+
+    Array.prototype.forEach.call($("grid").querySelectorAll("[data-id]"), function(el){
+      el.onclick = function(){ del(el.dataset.id); };
+    });
+  }
+
+  function del(id){
+    if (!confirm("Delete this photo permanently?")) return;
+    fetch("/api/delete-photo", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id: id, password: pw })
+    }).then(function(r){ return r.json(); }).then(function(res){
+      if (res.ok){
+        photos = photos.filter(function(p){ return p.id !== id; });
+        render();
+      } else {
+        alert(res.error || "Couldn't delete that.");
+      }
+    });
+  }
+
+  function load(reset){
+    var url = "/api/photos" + (!reset && cursor ? "?before=" + encodeURIComponent(cursor) : "");
+    fetch(url).then(function(r){ return r.json(); }).then(function(data){
+      photos = reset ? data.photos : photos.concat(data.photos);
+      cursor = data.nextCursor;
+      $("more").hidden = !cursor;
+      render();
+    });
+  }
+
+  $("more").onclick = function(){ load(false); };
+})();
+</script>
+</body>
+</html>
