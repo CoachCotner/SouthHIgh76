@@ -2,3 +2,6 @@ node_modules/
 .netlify/
 .DS_Store
 *.log
+
+# Preview QR codes for a test URL — generated on demand, never printed.
+qr/preview-*

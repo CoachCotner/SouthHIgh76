@@ -10,9 +10,16 @@ import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const target = process.argv[2] || "https://photos.southhigh76.com";
+const LIVE = "https://photos.southhigh76.com";
+const target = process.argv[2] || LIVE;
 const label = target.replace(/^https?:\/\//, "").replace(/\/$/, "");
 const out = dirname(fileURLToPath(import.meta.url));
+
+// Anything other than the live URL is a preview, so it writes to its own
+// "preview-" files and stamps the sign. Printing a preview code by mistake
+// would send a whole reunion to a dead link.
+const preview = target !== LIVE;
+const file = (name) => join(out, preview ? `preview-${name}` : name);
 
 // Error correction "H" recovers from 30% damage, so the code still scans off a
 // table tent that's been creased, spilled on, or photographed at an angle from
@@ -22,10 +29,10 @@ const GREEN = "#0F3E07"; // the site's primary school green
 const green = { dark: GREEN, light: "#ffffff" };
 
 const svg = await QRCode.toString(target, { ...base, type: "svg", color: green, width: 1000 });
-writeFileSync(join(out, "reunion-photos-qr.svg"), svg);
+writeFileSync(file("reunion-photos-qr.svg"), svg);
 
-await QRCode.toFile(join(out, "reunion-photos-qr.png"), target, { ...base, color: green, width: 2000 });
-await QRCode.toFile(join(out, "reunion-photos-qr-black.png"), target, {
+await QRCode.toFile(file("reunion-photos-qr.png"), target, { ...base, color: green, width: 2000 });
+await QRCode.toFile(file("reunion-photos-qr-black.png"), target, {
   ...base,
   color: { dark: "#000000", light: "#ffffff" },
   width: 2000,
@@ -36,7 +43,7 @@ await QRCode.toFile(join(out, "reunion-photos-qr-black.png"), target, {
 const qrPath = svg.match(/<path stroke[^>]*\/>/)[0];
 
 const card = `<div class="card">
-    <div class="kicker">South High &middot; Class of 1976</div>
+    <div class="kicker">${preview ? "TEST — DO NOT PRINT" : "South High &middot; Class of 1976"}</div>
     <h1>Share your photos</h1>
     <div class="sub">Point your phone camera at the code &mdash; your pictures go straight up on the reunion photo wall.</div>
     <svg class="qr" viewBox="0 0 37 37" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
@@ -47,7 +54,7 @@ const card = `<div class="card">
     <div class="steps">No app, no sign-up &middot; See everyone else&rsquo;s photos too</div>
   </div>`;
 
-writeFileSync(join(out, "print-signs.html"), `<!DOCTYPE html>
+writeFileSync(file("print-signs.html"), `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -105,4 +112,5 @@ h1{font-size:30pt;color:var(--green);line-height:1.1;margin-bottom:8px}
 </html>
 `);
 
-console.log("QR codes and print signs point to:", target);
+console.log(`${preview ? "PREVIEW " : ""}QR codes and print signs point to:`, target);
+if (preview) console.log("Written as preview-* files; the print-ready set is untouched.");
