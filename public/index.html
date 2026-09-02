@@ -144,6 +144,7 @@ header a.home:hover{color:#fff}
 
 .empty{text-align:center;padding:48px 20px;color:var(--muted)}
 .empty .icon{font-size:38px;margin-bottom:10px}
+.more[hidden]{display:none}
 .more{display:block;margin:0 auto 44px;padding:11px 22px;border:1px solid var(--border);
   background:#fff;border-radius:9px;font:inherit;font-weight:700;cursor:pointer}
 
@@ -544,7 +545,7 @@ header a.home:hover{color:#fff}
     }).catch(function(){ /* offline for a moment — the next poll picks it up */ });
   }
 
-  $("more").onclick = function(){ load(false); };
+  $("more").onclick = function(){ if (cursor) load(false); };
 
   function removeMine(id){
     if (!confirm("Take this photo off the wall?")) return;

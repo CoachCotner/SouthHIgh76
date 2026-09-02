@@ -30,6 +30,15 @@ button{font:inherit;cursor:pointer}
 .bar{display:flex;align-items:center;justify-content:space-between;margin:20px 0 14px;gap:12px}
 .bar h2{font-size:18px}
 .bar .n{color:var(--muted);font-size:14px}
+.baractions{display:flex;align-items:center;gap:12px}
+.dl{border:1px solid var(--green-deep);background:var(--green);color:#fff;border-radius:9px;
+  padding:9px 16px;font-weight:700;font-size:14px}
+.dl:disabled{opacity:.55;cursor:not-allowed}
+.prog{display:none;margin:0 0 14px}
+.prog.on{display:block}
+.progtext{font-size:13.5px;color:var(--muted);margin-bottom:6px}
+.progbar{height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+.progbar i{display:block;height:100%;width:0;background:var(--green);transition:width .2s}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;padding-bottom:40px}
 .card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative}
 .card .ph{aspect-ratio:4/3;background:#DFEDD4}
@@ -41,6 +50,7 @@ button{font:inherit;cursor:pointer}
 .card .del{width:100%;border:none;border-top:1px solid var(--border);background:#fff;
   color:var(--red);font-weight:700;font-size:13px;padding:9px}
 .card .del:hover{background:#fdeeee}
+.more[hidden]{display:none}
 .more{display:block;margin:0 auto 44px;padding:11px 22px;border:1px solid var(--border);
   background:#fff;border-radius:9px;font-weight:700}
 .empty{text-align:center;padding:48px;color:var(--muted)}
@@ -63,7 +73,15 @@ button{font:inherit;cursor:pointer}
   </div>
 
   <div id="panel" hidden>
-    <div class="bar"><h2>All photos</h2><div class="n" id="n"></div></div>
+    <div class="bar">
+      <h2>All photos</h2>
+      <div class="baractions">
+        <div class="n" id="n"></div>
+        <button class="dl" id="dl">Download all</button>
+      </div>
+    </div>
+    <div class="prog" id="prog"><div class="progtext" id="progtext"></div>
+      <div class="progbar"><i id="progfill"></i></div></div>
     <div class="grid" id="grid"></div>
     <button class="more" id="more" hidden>Load more</button>
   </div>
@@ -161,7 +179,113 @@ button{font:inherit;cursor:pointer}
     });
   }
 
-  $("more").onclick = function(){ load(false); };
+  $("more").onclick = function(){ if (cursor) load(false); };
+
+  /* ---------- download everything ----------
+     The zip is built in the browser, not in a function. A few hundred photos
+     is easily a gigabyte, which would blow past a serverless function's memory
+     and time limits — but it's nothing for a laptop. Photos are batched so no
+     single zip gets unwieldy, and JSZip only loads when the button is used. */
+
+  var BATCH = 40;
+  var zipLib = null;
+
+  function loadZipLib(){
+    if (zipLib) return zipLib;
+    zipLib = new Promise(function(resolve, reject){
+      var el = document.createElement("script");
+      el.src = "/vendor/jszip.min.js";
+      el.onload = function(){ window.JSZip ? resolve(window.JSZip) : reject(); };
+      el.onerror = reject;
+      document.head.appendChild(el);
+    });
+    return zipLib;
+  }
+
+  function say(text, pct){
+    $("prog").className = "prog on";
+    $("progtext").textContent = text;
+    if (pct != null) $("progfill").style.width = pct + "%";
+  }
+
+  // The gallery endpoint pages, so walk every page to get the full list.
+  function fetchAll(){
+    var all = [], cursor = null;
+    function next(){
+      var url = "/api/photos" + (cursor ? "?before=" + encodeURIComponent(cursor) : "");
+      return fetch(url).then(function(r){ return r.json(); }).then(function(d){
+        all = all.concat(d.photos);
+        cursor = d.nextCursor;
+        say("Finding photos… " + all.length + " so far");
+        return cursor ? next() : all;
+      });
+    }
+    return next();
+  }
+
+  function safeName(s){
+    return String(s || "").replace(/[\\/:*?"<>|]/g, "").replace(/\s+/g, " ").trim().slice(0, 60);
+  }
+
+  function saveBlob(blob, filename){
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+  }
+
+  $("dl").onclick = function(){
+    var btn = $("dl");
+    btn.disabled = true;
+    btn.textContent = "Working…";
+
+    Promise.all([loadZipLib(), fetchAll()]).then(function(res){
+      var JSZip = res[0], list = res[1];
+      if (!list.length){ say("Nothing to download yet."); return Promise.resolve(); }
+
+      var batches = Math.ceil(list.length / BATCH);
+      var done = 0;
+
+      // One batch at a time, so memory never holds more than ~40 photos.
+      function batch(i){
+        if (i >= batches) return Promise.resolve();
+        var slice = list.slice(i * BATCH, (i + 1) * BATCH);
+        var zip = new JSZip();
+
+        return slice.reduce(function(chain, photo, j){
+          return chain.then(function(){
+            return fetch(photo.url).then(function(r){ return r.blob(); }).then(function(blob){
+              var n = i * BATCH + j + 1;
+              var ext = (photo.id.split(".").pop() || "jpg");
+              var stem = String(n).padStart(4, "0") + " - " + safeName(photo.name) +
+                         (photo.caption ? " - " + safeName(photo.caption) : "");
+              zip.file(stem + "." + ext, blob);
+              done++;
+              say("Downloading photo " + done + " of " + list.length + "…",
+                  Math.round((done / list.length) * 100));
+            }).catch(function(){ /* skip one bad photo rather than lose the batch */ });
+          });
+        }, Promise.resolve()).then(function(){
+          say("Building zip " + (i + 1) + " of " + batches + "…");
+          return zip.generateAsync({ type: "blob" });
+        }).then(function(blob){
+          saveBlob(blob, "reunion-photos-" + String(i + 1).padStart(2, "0") + ".zip");
+          return batch(i + 1);
+        });
+      }
+
+      return batch(0).then(function(){
+        say("Done — " + list.length + " photo" + (list.length === 1 ? "" : "s") +
+            " in " + batches + " zip file" + (batches === 1 ? "" : "s") + ".", 100);
+      });
+    }).catch(function(){
+      say("Something went wrong. Refresh and try again.");
+    }).then(function(){
+      btn.disabled = false;
+      btn.textContent = "Download all";
+    });
+  };
 })();
 </script>
 </body>

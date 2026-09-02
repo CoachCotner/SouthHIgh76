@@ -55,6 +55,17 @@ REUNION_ADMIN_PASSWORD = <pick something>
 Until that's set, `/admin` refuses every password rather than
 letting anyone in. Nothing else needs configuring; Blobs provisions itself.
 
+### Getting the photos afterward
+
+**Download all** on `/admin` pulls every photo down as zip files — batches of
+40, so no single file is unwieldy. The zip is built in the browser rather than
+in a function: a few hundred photos is easily a gigabyte, which would exceed a
+serverless function's memory and time limits but is nothing for a laptop.
+
+Files come out named `0001 - Jane Smith - Dance floor.jpg`, so they stay in
+order and keep their credit. The browser may ask permission to download
+multiple files the first time — allow it.
+
 ### Moderation
 
 The wall is **public and instant** — a photo is live the moment it's posted.
