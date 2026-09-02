@@ -31,6 +31,10 @@ const green = { dark: GREEN, light: "#ffffff" };
 const svg = await QRCode.toString(target, { ...base, type: "svg", color: green, width: 1000 });
 writeFileSync(file("reunion-photos-qr.svg"), svg);
 
+// The /tv slideshow displays this corner QR, so publish a copy alongside the
+// site. Generated from the same source as the printed code — they can't drift.
+if (!preview) writeFileSync(join(out, "..", "public", "reunion-qr.svg"), svg);
+
 await QRCode.toFile(file("reunion-photos-qr.png"), target, { ...base, color: green, width: 2000 });
 await QRCode.toFile(file("reunion-photos-qr-black.png"), target, {
   ...base,

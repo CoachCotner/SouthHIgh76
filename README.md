@@ -34,6 +34,7 @@ no account, no sign-up.
 | --- | --- |
 | `/` | Upload form + live gallery (this is where the QR code points) |
 | `/admin` | Password-protected moderation — delete anything |
+| `/tv` | Full-screen slideshow for a projector or venue TV |
 | `/api/upload` | Accepts the photos |
 | `/api/photos` | Lists the wall, newest first, 60 at a time |
 | `/api/photo/:id` | Serves one image |
@@ -54,6 +55,21 @@ REUNION_ADMIN_PASSWORD = <pick something>
 
 Until that's set, `/admin` refuses every password rather than
 letting anyone in. Nothing else needs configuring; Blobs provisions itself.
+
+### The big screen
+
+`/tv` is built for a projector or a TV in the room. Open it, press F11 for
+full screen, and leave it. There are no controls to find in the dark — click
+or press → to skip, space to pause.
+
+It shuffles through everything on the wall, and when someone posts a new
+photo it jumps the queue within about fifteen seconds with a "Just posted"
+banner. That loop — post it, watch it hit the big screen — is what keeps
+people scanning all night, so a QR card sits in the corner the whole time.
+
+Portrait phone photos, which are most of them, get a blurred fill either side
+rather than black bars. A photo the browser can't decode is skipped rather
+than left frozen on a ten-foot screen.
 
 ### Getting the photos afterward
 
