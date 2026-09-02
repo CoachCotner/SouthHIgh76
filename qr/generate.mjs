@@ -14,12 +14,12 @@ const out = dirname(fileURLToPath(import.meta.url));
 // table tent that's been creased, spilled on, or photographed at an angle from
 // across a dim room.
 const base = { errorCorrectionLevel: "H", margin: 2 };
-const navy = { dark: "#12305c", light: "#ffffff" };
+const green = { dark: "#14603c", light: "#ffffff" };
 
-const svg = await QRCode.toString(target, { ...base, type: "svg", color: navy, width: 1000 });
+const svg = await QRCode.toString(target, { ...base, type: "svg", color: green, width: 1000 });
 writeFileSync(join(out, "reunion-photos-qr.svg"), svg);
 
-await QRCode.toFile(join(out, "reunion-photos-qr.png"), target, { ...base, color: navy, width: 2000 });
+await QRCode.toFile(join(out, "reunion-photos-qr.png"), target, { ...base, color: green, width: 2000 });
 await QRCode.toFile(join(out, "reunion-photos-qr-black.png"), target, {
   ...base,
   color: { dark: "#000000", light: "#ffffff" },

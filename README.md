@@ -109,7 +109,7 @@ Print-ready files are in `qr/`:
 - **`print-signs.html`** — open it and print. Two table-tent cards per page,
   cut along the dashed line. Tick "Background graphics" in the print dialog.
 - **`reunion-photos-qr.svg`** — vector, for a banner or anything large
-- **`reunion-photos-qr.png`** — 2000px, navy, for texting or social
+- **`reunion-photos-qr.png`** — 2000px, green, for texting or social
 - **`reunion-photos-qr-black.png`** — plain black, for cheap printing
 
 All of them point to `https://southhigh76.com/photos`. To regenerate — after

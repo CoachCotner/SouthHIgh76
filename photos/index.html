@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Reunion Photos — South High Class of '76</title>
 <meta name="description" content="Share your photos from the South High Class of 1976 reunion.">
-<meta name="theme-color" content="#12305c">
+<meta name="theme-color" content="#14603c">
 <style>
 /* ---------------------------------------------------------------
    Palette. These are placeholders until the main site's stylesheet
@@ -13,8 +13,8 @@
    whole page follows.
    --------------------------------------------------------------- */
 :root{
-  --navy:#12305c;
-  --navy-dark:#0b1f3d;
+  --green:#14603c;
+  --green-dark:#0d4429;
   --gold:#c8952b;
   --cream:#f7f4ed;
   --ink:#1a1a1a;
@@ -23,8 +23,8 @@
   --card:#ffffff;
   --border:#e3e0d8;
   --radius:14px;
-  --shadow:0 2px 14px rgba(11,31,61,.09);
-  --shadow-lg:0 10px 40px rgba(11,31,61,.18);
+  --shadow:0 2px 14px rgba(13,68,41,.09);
+  --shadow-lg:0 10px 40px rgba(13,68,41,.18);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
@@ -36,7 +36,7 @@ img{max-width:100%;display:block}
 .wrap{max-width:1100px;margin:0 auto;padding:0 16px}
 
 /* ---------- header ---------- */
-header{background:var(--navy);color:#fff;padding:28px 0 24px;text-align:center}
+header{background:var(--green);color:#fff;padding:28px 0 24px;text-align:center}
 header .kicker{
   font-size:12px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--gold);font-weight:700;margin-bottom:6px;
@@ -66,16 +66,16 @@ header a.home:hover{color:#fff}
   background:#fff;color:var(--ink);
 }
 .field textarea{resize:vertical;min-height:66px}
-.field input:focus,.field textarea:focus{outline:2px solid var(--navy);outline-offset:-1px;border-color:var(--navy)}
+.field input:focus,.field textarea:focus{outline:2px solid var(--green);outline-offset:-1px;border-color:var(--green)}
 
 /* the honeypot — hidden from people, catnip for bots */
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 
 .drop{
   border:2px dashed var(--border);border-radius:12px;padding:26px 16px;text-align:center;
-  background:#fcfbf8;cursor:pointer;transition:border-color .15s,background .15s;
+  background:#fbfaf6;cursor:pointer;transition:border-color .15s,background .15s;
 }
-.drop:hover,.drop.over{border-color:var(--navy);background:#f4f7fc}
+.drop:hover,.drop.over{border-color:var(--green);background:#f1f7f3}
 .drop .icon{font-size:30px;line-height:1;margin-bottom:8px}
 .drop .big{font-weight:700;font-size:15px}
 .drop .small{color:var(--muted);font-size:13px;margin-top:3px}
@@ -92,10 +92,10 @@ header a.home:hover{color:#fff}
 
 .btn{
   width:100%;margin-top:16px;padding:14px;border:none;border-radius:10px;
-  background:var(--navy);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer;
+  background:var(--green);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer;
   transition:background .15s;
 }
-.btn:hover:not(:disabled){background:var(--navy-dark)}
+.btn:hover:not(:disabled){background:var(--green-dark)}
 .btn:disabled{opacity:.55;cursor:not-allowed}
 
 .bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:12px;display:none}
@@ -125,7 +125,7 @@ header a.home:hover{color:#fff}
 .card .ph{aspect-ratio:4/3;background:#e9e6df;cursor:zoom-in}
 .card .ph.unshowable{display:flex;align-items:center;justify-content:center;cursor:default}
 .card .ph.unshowable a{display:flex;flex-direction:column;align-items:center;gap:6px;
-  color:var(--navy);text-decoration:none;font-size:12.5px;font-weight:700}
+  color:var(--green);text-decoration:none;font-size:12.5px;font-weight:700}
 .card .ph.unshowable span:first-child{font-size:26px}
 .card .ph img{width:100%;height:100%;object-fit:cover}
 .card .meta{padding:9px 11px 11px}
@@ -142,7 +142,7 @@ header a.home:hover{color:#fff}
   background:#fff;border-radius:9px;font:inherit;font-weight:700;cursor:pointer}
 
 /* ---------- lightbox ---------- */
-.lb{position:fixed;inset:0;background:rgba(6,14,28,.94);z-index:60;display:none;
+.lb{position:fixed;inset:0;background:rgba(8,28,18,.94);z-index:60;display:none;
   align-items:center;justify-content:center;padding:20px}
 .lb.on{display:flex}
 .lb img{max-width:100%;max-height:78vh;object-fit:contain;border-radius:6px}
