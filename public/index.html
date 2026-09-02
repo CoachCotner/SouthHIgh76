@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Reunion Photos — South High Class of '76</title>
 <meta name="description" content="Share your photos from the South High Class of 1976 reunion.">
-<meta name="theme-color" content="#14603c">
+<meta name="theme-color" content="#0F3E07">
 <style>
 /* ---------------------------------------------------------------
    Palette. These are placeholders until the main site's stylesheet
@@ -13,23 +13,28 @@
    whole page follows.
    --------------------------------------------------------------- */
 :root{
-  --green:#14603c;
-  --green-dark:#0d4429;
-  --gold:#c8952b;
-  --cream:#f7f4ed;
-  --ink:#1a1a1a;
-  --muted:#6b7280;
+  /* Site palette, taken from southhigh76.com. */
+  --green:#0F3E07;        /* primary school green — headings, header, buttons */
+  --green-dark:#06280B;   /* deepest shade — hover, accents */
+  --green-deep:#093F01;   /* button borders and outlines */
+  --mint-1:#E8F3E0;       /* background wash, top */
+  --mint-2:#F0F7E7;       /* background wash, bottom */
+  --mint-soft:#CFE5BE;    /* light green for text on the dark header */
 
-  --card:#ffffff;
-  --border:#e3e0d8;
+  --ink:#16210F;
+  --muted:#5F6B58;
+
+  --card:#FFFFFF;
+  --border:#D3E5C6;
   --radius:14px;
-  --shadow:0 2px 14px rgba(13,68,41,.09);
-  --shadow-lg:0 10px 40px rgba(13,68,41,.18);
+  --shadow:0 2px 14px rgba(15,62,7,.10);
+  --shadow-lg:0 10px 40px rgba(15,62,7,.20);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  background:var(--cream);color:var(--ink);line-height:1.5;
+  background:linear-gradient(180deg,var(--mint-1),var(--mint-2)) fixed;
+  color:var(--ink);line-height:1.5;
   -webkit-font-smoothing:antialiased;
 }
 img{max-width:100%;display:block}
@@ -39,7 +44,7 @@ img{max-width:100%;display:block}
 header{background:var(--green);color:#fff;padding:28px 0 24px;text-align:center}
 header .kicker{
   font-size:12px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--gold);font-weight:700;margin-bottom:6px;
+  color:var(--mint-soft);font-weight:700;margin-bottom:6px;
 }
 header h1{font-size:clamp(24px,5vw,34px);font-weight:800;letter-spacing:-.5px}
 header p{color:rgba(255,255,255,.72);font-size:15px;margin-top:6px}
@@ -59,7 +64,7 @@ header a.home:hover{color:#fff}
 
 .field{margin-bottom:14px}
 .field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
-.field .req{color:var(--gold)}
+.field .req{color:var(--green-deep)}
 .field input[type=text],.field textarea{
   width:100%;font:inherit;font-size:16px; /* 16px stops iOS zooming on focus */
   padding:11px 13px;border:1px solid var(--border);border-radius:9px;
@@ -73,17 +78,17 @@ header a.home:hover{color:#fff}
 
 .drop{
   border:2px dashed var(--border);border-radius:12px;padding:26px 16px;text-align:center;
-  background:#fbfaf6;cursor:pointer;transition:border-color .15s,background .15s;
+  background:#F7FBF3;cursor:pointer;transition:border-color .15s,background .15s;
 }
-.drop:hover,.drop.over{border-color:var(--green);background:#f1f7f3}
+.drop:hover,.drop.over{border-color:var(--green);background:#EAF4E1}
 .drop .icon{font-size:30px;line-height:1;margin-bottom:8px}
 .drop .big{font-weight:700;font-size:15px}
 .drop .small{color:var(--muted);font-size:13px;margin-top:3px}
 
 .picked{margin-top:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
-.picked figure{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#eee}
+.picked figure{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#DFEDD4}
 .picked figure.noprev::after{content:'\1F4F7';position:absolute;inset:0;display:flex;align-items:center;
-  justify-content:center;font-size:22px;background:#e6e2d9}
+  justify-content:center;font-size:22px;background:#DFEDD4}
 .picked img{width:100%;height:100%;object-fit:cover}
 .picked button{
   position:absolute;top:3px;right:3px;width:20px;height:20px;border:none;border-radius:50%;
@@ -93,6 +98,7 @@ header a.home:hover{color:#fff}
 .btn{
   width:100%;margin-top:16px;padding:14px;border:none;border-radius:10px;
   background:var(--green);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer;
+  border:1px solid var(--green-deep);
   transition:background .15s;
 }
 .btn:hover:not(:disabled){background:var(--green-dark)}
@@ -100,7 +106,7 @@ header a.home:hover{color:#fff}
 
 .bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:12px;display:none}
 .bar.on{display:block}
-.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .25s}
+.bar i{display:block;height:100%;width:0;background:var(--green);transition:width .25s}
 
 .msg{margin-top:12px;padding:11px 13px;border-radius:9px;font-size:14px;display:none}
 .msg.on{display:block}
@@ -122,7 +128,7 @@ header a.home:hover{color:#fff}
   background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;
   box-shadow:var(--shadow);position:relative;
 }
-.card .ph{aspect-ratio:4/3;background:#e9e6df;cursor:zoom-in}
+.card .ph{aspect-ratio:4/3;background:#DFEDD4;cursor:zoom-in}
 .card .ph.unshowable{display:flex;align-items:center;justify-content:center;cursor:default}
 .card .ph.unshowable a{display:flex;flex-direction:column;align-items:center;gap:6px;
   color:var(--green);text-decoration:none;font-size:12.5px;font-weight:700}
@@ -142,7 +148,7 @@ header a.home:hover{color:#fff}
   background:#fff;border-radius:9px;font:inherit;font-weight:700;cursor:pointer}
 
 /* ---------- lightbox ---------- */
-.lb{position:fixed;inset:0;background:rgba(8,28,18,.94);z-index:60;display:none;
+.lb{position:fixed;inset:0;background:rgba(6,22,4,.95);z-index:60;display:none;
   align-items:center;justify-content:center;padding:20px}
 .lb.on{display:flex}
 .lb img{max-width:100%;max-height:78vh;object-fit:contain;border-radius:6px}
@@ -164,7 +170,7 @@ header a.home:hover{color:#fff}
     <div class="kicker">South High &middot; Class of 1976</div>
     <h1>Reunion Photo Wall</h1>
     <p>Snap it, share it — it shows up here right away.</p>
-    <a class="home" href="/">&larr; Back to the reunion site</a>
+    <a class="home" href="https://southhigh76.com">&larr; Back to the reunion site</a>
   </div>
 </header>
 
@@ -337,7 +343,7 @@ header a.home:hover{color:#fff}
     if (heicDecoder) return heicDecoder;
     heicDecoder = new Promise(function(resolve, reject){
       var s = document.createElement("script");
-      s.src = "/photos/vendor/heic2any.min.js";
+      s.src = "/vendor/heic2any.min.js";
       s.onload = function(){ window.heic2any ? resolve(window.heic2any) : reject(); };
       s.onerror = reject;
       document.head.appendChild(s);

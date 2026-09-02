@@ -1,19 +1,27 @@
-# The site is plain HTML, so there is no build step — Netlify publishes the
-# repo root as-is and picks up the functions in netlify/functions.
+# Static site, no build step. `public` is published; everything outside it
+# (node_modules, tests, the QR tooling) stays off the web.
 [build]
-  publish = "."
+  publish = "public"
   command = ""
 
 [functions]
+  directory = "netlify/functions"
   node_bundler = "esbuild"
 
-# Pretty URL for the QR code: southhigh76.com/photos
+# The wall lives at the root of photos.southhigh76.com. These keep the
+# friendlier paths working, and match the URL if it ever moves under the
+# main site.
 [[redirects]]
   from = "/photos"
-  to = "/photos/index.html"
-  status = 200
+  to = "/"
+  status = 301
 
 [[redirects]]
   from = "/upload"
-  to = "/photos/index.html"
+  to = "/"
   status = 301
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
