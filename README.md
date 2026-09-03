@@ -94,6 +94,18 @@ Two ways to take one down:
 Keep that admin page open on your phone during the event and a bad photo is
 gone in two taps.
 
+### The two upload buttons
+
+"Take a Photo" and "From My Photos" are backed by two separate file inputs,
+and that split is load-bearing on Android. A bare `accept="image/*"` with
+`capture` is what makes Android offer the camera; adding a file-extension
+list to `accept` turns the control into a file-picker-only one and the camera
+option vanishes. So the camera input keeps a clean `image/*`, and the library
+input keeps the wide extension list that helps odd file managers show HEIC.
+
+Dragging is desktop-only and hidden below 700px, since you can't drag on a
+phone and it only crowds the screen this is mostly used from.
+
 ### Phone formats
 
 Uploads are identified by **reading the file's first bytes**, not by the

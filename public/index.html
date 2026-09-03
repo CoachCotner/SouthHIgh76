@@ -77,10 +77,23 @@ header a.home:hover{color:#fff}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 
 .drop{
-  border:2px dashed var(--border);border-radius:12px;padding:26px 16px;text-align:center;
+  display:none;
+  border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center;
   background:#F7FBF3;cursor:pointer;transition:border-color .15s,background .15s;
+  margin-top:11px;
 }
+@media(min-width:700px){ .drop{display:block} }
+.pickhint{text-align:center;font-size:12.5px;color:var(--muted);margin-top:9px}
 .drop:hover,.drop.over{border-color:var(--green);background:#EAF4E1}
+.pickbtns{display:flex;gap:9px;margin-top:11px}
+.pickbtn{
+  flex:1;padding:14px 10px;border:1px solid var(--border);border-radius:10px;
+  background:#fff;font:inherit;font-size:15px;font-weight:700;color:var(--green);
+  cursor:pointer;line-height:1.25;
+}
+.pickbtn.primary{background:var(--green);color:#fff;border-color:var(--green-deep)}
+.pickbtn:active{transform:translateY(1px)}
+@media(max-width:400px){.pickbtns{flex-direction:column}}
 .drop .icon{font-size:30px;line-height:1;margin-bottom:8px}
 .drop .big{font-weight:700;font-size:15px}
 .drop .small{color:var(--muted);font-size:13px;margin-top:3px}
@@ -204,11 +217,24 @@ header a.home:hover{color:#fff}
         <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
       </div>
 
-      <div class="drop" id="drop">
-        <div class="icon">&#128248;</div>
-        <div class="big">Tap to take a photo or choose from your library</div>
-        <div class="small">Straight from an iPhone or Android &middot; up to 12MB each</div>
+      <div class="pickbtns">
+        <button type="button" class="pickbtn primary" id="btn-camera">&#128247; Take a Photo</button>
+        <button type="button" class="pickbtn" id="btn-library">&#128194; From My Photos</button>
       </div>
+      <div class="pickhint">Any phone &middot; up to 20 at a time &middot; 12MB each</div>
+
+      <!-- Dragging is a desktop-only affordance, so it stays out of the way
+           on the phones this is mostly used from. -->
+      <div class="drop" id="drop">
+        <div class="small">or drag photos here</div>
+      </div>
+
+      <!-- Two inputs on purpose. A bare `image/*` with `capture` is what makes
+           Android offer the camera; adding a file-extension list to `accept`
+           turns the control into a file-picker-only one and the camera option
+           disappears entirely. The library input keeps the wide list so odd
+           file managers still show HEIC. -->
+      <input type="file" id="camera" accept="image/*" capture="environment" hidden>
       <input type="file" id="files" accept="image/*,.heic,.heif,.avif,.jpg,.jpeg,.png,.webp,.gif" multiple hidden>
 
       <div class="picked" id="picked"></div>
@@ -344,8 +370,13 @@ header a.home:hover{color:#fff}
     if (skipped) say(skipped + " file" + (skipped === 1 ? " wasn't a photo and was" : "s weren't photos and were") + " skipped.", "err");
   }
 
+  function takeFiles(e){ addFiles(e.target.files); e.target.value = ""; }
+
   $("drop").onclick = function(){ $("files").click(); };
-  $("files").onchange = function(e){ addFiles(e.target.files); e.target.value = ""; };
+  $("btn-library").onclick = function(){ $("files").click(); };
+  $("btn-camera").onclick = function(){ $("camera").click(); };
+  $("files").onchange = takeFiles;
+  $("camera").onchange = takeFiles;
 
   ["dragenter","dragover"].forEach(function(ev){
     $("drop").addEventListener(ev, function(e){ e.preventDefault(); this.classList.add("over"); });
